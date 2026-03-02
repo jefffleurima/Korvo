@@ -1,0 +1,252 @@
+# KORVO — Revenue Infrastructure for Med Spas
+
+## Mission
+
+Korvo ensures med spas never miss a high-value consultation by automating inbound call answering, missed call recovery, AI intake qualification, consultation booking, and CRM syncing.
+
+Korvo is NOT a chatbot.
+Korvo is NOT a CRM.
+Korvo is revenue capture infrastructure.
+
+Intake only: Korvo does not give medical or treatment advice. It gathers contact info and basic interest (treatment type, timeline), schedules consultations, and pushes leads to your location. Medical questions are referred to your staff.
+
+---
+
+# KORVO 2.0 — Positioning
+
+Korvo is a **real-time lead interception + conversion engine for med spas**. It does three things:
+
+1. **Captures inbound demand instantly**
+2. **Responds faster than any competitor**
+3. **Pre-closes before a human touches it**
+
+That’s more powerful than “AI answering.”
+
+## The Core System (4 Layers)
+
+**Layer 1: Signal Capture**  
+Korvo listens for:
+- Inbound calls
+- Form submissions
+- SMS
+- Missed calls
+- CRM leads
+- Ad platform webhooks
+
+**Layer 2: Instant AI Engagement**  
+Within seconds:
+- AI answers the call, or calls back, or texts
+- Starts intelligent qualification (treatment interest, timeline)
+- Not robotic. Not scripted. Adaptive.
+
+**Layer 3: Intent Scoring**  
+Korvo assigns:
+- Budget score (treatment value / spend intent)
+- Urgency score (how soon they want to come in)
+- Conversion probability
+- Competitor risk
+
+You’re selling intelligence, not just automation.
+
+**Layer 4: Revenue Routing**  
+By score:
+- High intent → book immediately  
+- Medium → nurture  
+- Low → automated follow-up  
+
+Humans handle the highest ROI calls only.
+
+## What Korvo Becomes
+
+Not an answering tool. Not a CRM.  
+**A revenue optimization layer that sits between marketing and your front desk.**  
+Built for med spas: one missed consultation = ~$2,500 lost; 34% of calls missed at peak; 68% of callers won’t leave voicemail. Korvo captures them.
+
+---
+
+# Competitive Landscape (Med Spa)
+
+- Eva AI, DialIQ, and others offer AI receptionist for med spas. Korvo competes on: full four layers (capture + engage + score + route), “ring human then AI” option, intent scoring dashboard, form webhook + calls in one platform.
+- Many med spas still rely on front desk only; after-hours and peak missed calls are a major leak. Clear ROI story: “You’re losing $75k–$150k/year from missed calls; we answer 24/7.”
+
+---
+
+# TECH STACK
+
+## Frontend
+- Next.js 14 (App Router)
+- TypeScript
+- TailwindCSS
+- ShadCN UI
+- React Hook Form
+- Zod validation
+- Recharts (analytics graphs)
+- Zustand (state management)
+
+## Backend
+- Supabase (Postgres, Auth, RLS)
+- Twilio (voice + SMS)
+- OpenAI (intake qualification, conversation logic, intent scoring)
+- ElevenLabs (natural voice for AI calls)
+- Korvo API routes (webhooks → OpenAI → Calendar → Supabase → SMS/CRM)
+- Resend (email), Stripe (billing), Google Calendar API, CRM Webhooks
+
+## Deployment
+- Vercel (frontend + API routes), Supabase hosted backend
+
+---
+
+# DATABASE SCHEMA (Supabase)
+
+Same tables; for med spa use column semantics below. (service_type = treatment interest, estimated_budget = estimated spend/treatment value, timeline = when they want to come in.)
+
+## organizations
+- id, name, website
+- service_area (locations or regions served)
+- minimum_project_value (optional; map to minimum consult value if needed)
+- call_ring_timeout_seconds, forwarding_phone, twilio_phone_number, webhook_secret
+- created_at
+
+## leads
+- id, organization_id, name, phone, email
+- service_type (treatment interest: Botox, filler, body contouring, laser, etc.)
+- estimated_budget (estimated spend or treatment value)
+- timeline (when they want to book)
+- address
+- insurance_info (optional; rarely used for med spa; keep for compatibility)
+- qualification_status (qualified / disqualified / pending)
+- ai_score, budget_score, urgency_score, conversion_score
+- created_at
+
+## calls, messages, appointments, integrations, billing
+(Unchanged structure.)
+
+---
+
+# LANDING PAGE COPY
+
+Headline:
+Never miss a $2,500 consultation again.
+
+Sub:
+Korvo answers every call, qualifies leads, and books consultations automatically—so your med spa never drops a potential client.
+
+Primary CTA: Get Started
+Secondary CTA: Book Demo
+
+---
+
+# ONBOARDING FLOW
+
+Step 1: Med spa / location info
+- Business name
+- Website
+- Treatments offered (e.g. Botox, filler, body contouring, laser, facials)
+- Locations or service area
+
+Step 2: Connect Twilio
+Step 3: Connect Google Calendar (OAuth)
+Step 4: Connect CRM (Webhook URL)
+Step 5: AI Configuration (treatment types, tone, intake disclaimers—no medical advice)
+
+---
+
+# CALL FLOW LOGIC (Korvo API)
+
+Inbound Call:
+1. Twilio webhook hits Korvo API route.
+2. API sends conversation to OpenAI; returns structured JSON (intake only, no medical advice):
+   { name, treatment_interest, timeline, estimated_spend?, qualified: true/false }
+3. If qualified: book consultation, save to Supabase, SMS, email, CRM.
+4. If not qualified: log lead, polite referral or callback.
+
+Missed Call: status callback → callback and/or SMS → create lead as pending.
+
+---
+
+# OPENAI PROMPT STRUCTURE (Med Spa)
+
+System Prompt:
+You are an intake specialist for a medical spa. You do NOT give medical or treatment advice. You gather contact information and basic interest: what treatments they’re interested in, when they’d like to come in. You are warm, professional, and helpful. If they ask medical questions (allergies, conditions, suitability for a treatment), say that the team will go over that at their consultation and you’re just here to get them on the calendar.
+
+Qualification Rules (configurable):
+- Treatment interest matches what the spa offers
+- Timeline (ready to book soon vs just browsing)
+- Basic fit for consultation (not a wrong number, not spam)
+
+Always state that you are not a medical professional and cannot give treatment advice. Return JSON only.
+
+---
+
+# ELEVENLABS SETTINGS
+
+- Warm, professional tone
+- Medium pace, clear articulation
+- Appropriate for aesthetic/wellness callers (reassuring, not clinical)
+
+---
+
+# DASHBOARD FEATURES
+
+Overview: Leads this month, Booked consultations, Missed calls recovered, Revenue influenced, Pipeline graph.
+Leads: Table, filter by status, treatment interest, intent scores; detail with transcript + recording.
+Calls: Logs, play recording, AI transcript.
+Messages: Unified SMS inbox.
+Analytics: Close rate, qualification rate, revenue captured, lead source breakdown.
+
+---
+
+# BILLING MODEL (Med Spa)
+
+**Option A — Setup + monthly**  
+Setup: $500–1,500 (one-time). Monthly: $300–800 per location.  
+- Med spa ACV is lower than legal; volume (multi-location or many single locations) drives revenue.
+
+**Option B — No setup, monthly only**  
+Setup: $0. Monthly: $400–800 per location.  
+- Easier yes; good for pilot and proof.
+
+**Recommendation:**  
+- Start at $300–500/mo per location for pilot; raise as you add proof (testimonials, ROI).  
+- Multi-location deals at $800–1,500/mo total (2–3 locations) improve unit economics.
+
+Stripe: Subscription required before Twilio activation. Cancel disables automation.
+
+---
+
+# SECURITY & COMPLIANCE (Med Spa)
+
+- Supabase RLS, encrypted credentials, JWT auth, rate limiting, webhook verification.
+- Compliance: No medical or treatment advice. Call/SMS consent and opt-out (TCPA). Data handling: PII stored securely; no PHI beyond contact info and appointment context. One-pager for prospects: “Korvo handles intake and booking only; your staff handles all medical and treatment decisions.”
+
+---
+
+# MVP PRIORITIES
+
+1. Inbound call answering
+2. Intake qualification (treatment interest, timeline; no medical advice)
+3. Calendar booking
+4. SMS confirmation
+5. CRM push
+6. Dashboard lead tracking
+
+---
+
+# WHAT TO DO NOW
+
+**Product:** Real AI voice on no-answer, intent scoring in dashboard, form webhook, Stripe gate.  
+**Go-to-market:** First 3–5 conversations with med spa owners; pilot at 1–2 locations for testimonial.  
+**Operations:** Compliance one-pager (no medical advice, consent, data); onboarding playbook.
+
+---
+
+# UPSCALE ROADMAP
+
+**Done:** Form webhook, Integrations with real Twilio status, Dashboard “Revenue pipeline,” med spa pivot (copy, prompts, positioning).  
+**Next:** Real AI voice (no-answer), webhook secret in Account, Stripe gate, compliance one-pager, Calendar + CRM.
+
+---
+
+# FINAL INSTRUCTION TO CURSOR
+
+Build modularly; production-ready. For med spa: intake only, no medical or treatment advice; tone and prompts must reflect that. Korvo 2.0: four layers (Signal Capture, Instant AI Engagement, Intent Scoring, Revenue Routing). OpenAI and ElevenLabs for adaptive conversation and natural voice. All copy and prompts are for med spas (treatments, consultations, locations).

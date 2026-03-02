@@ -1,0 +1,18 @@
+# Dependencies and build
+webapp/node_modules/
+webapp/.next/
+webapp/out/
+webapp/build/
+webapp/.vercel
+
+# Env and secrets (never commit)
+webapp/.env
+webapp/.env.local
+webapp/.env.development.local
+webapp/.env.test.local
+webapp/.env.production.local
+
+# Misc
+.DS_Store
+*.log
+webapp/.turbo
