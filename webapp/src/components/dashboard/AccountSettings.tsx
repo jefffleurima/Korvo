@@ -125,25 +125,6 @@ export function AccountSettings({
     }
   }
 
-  async function handleSaveCallSettings(e: React.FormEvent) {
-    e.preventDefault();
-    setCallSettingsMessage(null);
-    setCallSettingsLoading(true);
-    try {
-      await updateCallSettings({
-        call_ring_timeout_seconds: callRingTimeout ? parseInt(callRingTimeout, 10) : undefined,
-        forwarding_phone: forwardingPhone || null,
-        twilio_phone_number: twilioPhoneNumber || null,
-      });
-      setCallSettingsMessage({ type: "success", text: "Call settings saved." });
-      router.refresh();
-    } catch (err) {
-      setCallSettingsMessage({ type: "error", text: err instanceof Error ? err.message : "Failed to save." });
-    } finally {
-      setCallSettingsLoading(false);
-    }
-  }
-
   return (
     <div className="mt-8 space-y-8">
       <Card className="border-black/10">
