@@ -33,7 +33,7 @@ export function SignupForm() {
         setIsLoading(false);
         return;
       }
-      await createOrganizationAndUser(companyName || "My Company");
+      await createOrganizationAndUser(companyName || "My Business");
       router.refresh();
       router.push("/setup");
     } catch (err) {
@@ -52,12 +52,12 @@ export function SignupForm() {
       )}
       <div className="space-y-2">
         <Label htmlFor="signup-company" className="text-black">
-          Firm name
+          Business name
         </Label>
         <Input
           id="signup-company"
           type="text"
-          placeholder="Smith & Associates Law"
+          placeholder="Glow Aesthetics Med Spa"
           value={companyName}
           onChange={(e) => setCompanyName(e.target.value)}
           className="border-black/20 bg-white"

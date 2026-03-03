@@ -8,7 +8,7 @@ export async function createOrganizationAndUser(orgName: string) {
   if (!user) throw new Error("Not authenticated");
 
   const { data, error } = await supabase.rpc("create_organization_and_user", {
-    org_name: orgName || "My Firm",
+    org_name: orgName || "My Business",
   });
 
   if (error) throw new Error(error.message);

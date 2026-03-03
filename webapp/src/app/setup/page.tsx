@@ -9,7 +9,7 @@ export default async function SetupPage() {
 
   const { data: profile } = await supabase.from("users").select("id").eq("id", user.id).single();
   if (!profile) {
-    await supabase.rpc("create_organization_and_user", { org_name: "My Firm" });
+    await supabase.rpc("create_organization_and_user", { org_name: "My Business" });
   }
 
   return (
