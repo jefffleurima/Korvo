@@ -109,13 +109,17 @@ export function AccountSettings({
     setCallSettingsLoading(true);
     try {
       const timeoutNum = parseInt(callRingTimeout, 10);
-      await updateCallSettings({
+      const result = await updateCallSettings({
         call_ring_timeout_seconds: Number.isNaN(timeoutNum) ? 15 : timeoutNum,
         forwarding_phone: forwardingPhone.trim() || null,
         twilio_phone_number: twilioPhoneNumber.trim() || null,
         vapi_assistant_id: vapiAssistantId.trim() || null,
         vapi_phone_number_id: vapiPhoneNumberId.trim() || null,
       });
+      if (result.error) {
+        setCallSettingsMessage({ type: "error", text: result.error });
+        return;
+      }
       setCallSettingsMessage({ type: "success", text: "Call settings saved." });
       router.refresh();
     } catch (err) {

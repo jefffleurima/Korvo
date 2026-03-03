@@ -38,28 +38,33 @@ export async function updateCallSettings(formData: {
   twilio_phone_number?: string | null;
   vapi_assistant_id?: string | null;
   vapi_phone_number_id?: string | null;
-}) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not authenticated");
+}): Promise<{ error?: string }> {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { error: "Not authenticated" };
 
-  const { data: userRow } = await supabase.from("users").select("organization_id").eq("id", user.id).single();
-  if (!userRow?.organization_id) throw new Error("No organization");
+    const { data: userRow } = await supabase.from("users").select("organization_id").eq("id", user.id).single();
+    if (!userRow?.organization_id) return { error: "No organization" };
 
-  const payload: Record<string, unknown> = {};
-  if (formData.call_ring_timeout_seconds !== undefined) {
-    const n = Number(formData.call_ring_timeout_seconds);
-    payload.call_ring_timeout_seconds = Math.min(60, Math.max(5, Number.isNaN(n) ? 15 : n));
+    const payload: Record<string, unknown> = {};
+    if (formData.call_ring_timeout_seconds !== undefined) {
+      const n = Number(formData.call_ring_timeout_seconds);
+      payload.call_ring_timeout_seconds = Math.min(60, Math.max(5, Number.isNaN(n) ? 15 : n));
+    }
+    if (formData.forwarding_phone !== undefined) payload.forwarding_phone = formData.forwarding_phone || null;
+    if (formData.twilio_phone_number !== undefined) payload.twilio_phone_number = formData.twilio_phone_number || null;
+    if (formData.vapi_assistant_id !== undefined) payload.vapi_assistant_id = formData.vapi_assistant_id?.trim() || null;
+    if (formData.vapi_phone_number_id !== undefined) payload.vapi_phone_number_id = formData.vapi_phone_number_id?.trim() || null;
+
+    const { error } = await supabase
+      .from("organizations")
+      .update(payload)
+      .eq("id", userRow.organization_id);
+
+    if (error) return { error: error.message };
+    return {};
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Failed to save call settings." };
   }
-  if (formData.forwarding_phone !== undefined) payload.forwarding_phone = formData.forwarding_phone || null;
-  if (formData.twilio_phone_number !== undefined) payload.twilio_phone_number = formData.twilio_phone_number || null;
-  if (formData.vapi_assistant_id !== undefined) payload.vapi_assistant_id = formData.vapi_assistant_id?.trim() || null;
-  if (formData.vapi_phone_number_id !== undefined) payload.vapi_phone_number_id = formData.vapi_phone_number_id?.trim() || null;
-
-  const { error } = await supabase
-    .from("organizations")
-    .update(payload)
-    .eq("id", userRow.organization_id);
-
-  if (error) throw new Error(error.message);
 }
